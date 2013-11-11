@@ -1,4 +1,7 @@
 git-idfs-db
 ===========
 
-A git db implementation that wraps an IDBFS interface instance. Creates real git repos in the fs.
+A js-git interface adapter that implements [db][] using [IDBFS][].
+
+[db]: https://github.com/creationix/js-git/blob/master/specs/high/db.md
+[IDBFS]: https://github.com/js-platform/idbfs
