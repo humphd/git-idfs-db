@@ -21,7 +21,7 @@ module.exports = function (platform) {
           return inflate(deflated, callback);
         });
       }
-      return fs.readFile(key, "utf8")(callback);
+      return fs.readFile(key, "utf8", callback);
     }
 
     function set(key, value, callback) {
@@ -29,10 +29,10 @@ module.exports = function (platform) {
       if (isHash.test(key)) {
         return deflate(value, function (err, deflated) {
           if (err) return callback(err);
-          return writeFile(hashToPath(key), deflated, callback);
+          return write(hashToPath(key), deflated, callback);
         });
       }
-      return writeFile(key, value, "utf8", callback);
+      return write(key, value, "utf8", callback);
     }
 
     function write(path, data, callback) {
@@ -59,7 +59,7 @@ module.exports = function (platform) {
         if (dir.length <= 1) return callback();
         return fs.rmdir(dir, function (err) {
           if (!err) return clean(dirname(dir));
-          if (err.code === "ENOTEMPTY" || err.code === "ENOENT") {
+          if (err.name === "ENotEmpty" || err.name === "ENoEntry") {
             return callback();
           }
           return callback(err);
@@ -69,17 +69,17 @@ module.exports = function (platform) {
 
     function has(key, callback) {
       if (!callback) return has.bind(this, key);
-      if (isHash.test(key)) {
-        return fs.stat(hashToPath(key), onStat);
-      }
-      return fs.stat(key, onStat);
       function onStat(err) {
         if (err) {
-          if (err.code === "ENOENT") return callback();
+          if (err.name === "ENoEntry") return callback();
           return callback(err);
         }
         return callback(null, true);
       }
+      if (isHash.test(key)) {
+        return fs.stat(hashToPath(key), onStat);
+      }
+      return fs.stat(key, onStat);
     }
 
     function keys(prefix, callback) {
@@ -93,8 +93,8 @@ module.exports = function (platform) {
 
     function mkdirp(path, callback) {
       fs.mkdir(path, function (err) {
-        if (!err || err.code === "EEXIST") return callback();
-        if (err.code === "ENOENT") {
+        if (!err || err.name === "EExists") return callback();
+        if (err.name === "ENoEntry") {
           return mkdirp(dirname(path), function (err) {
             if (err) return callback(err);
             mkdirp(path, callback);
