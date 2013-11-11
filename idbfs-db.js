@@ -21,7 +21,7 @@ module.exports = function (platform) {
           return inflate(deflated, callback);
         });
       }
-      return fs.read(key, "ascii")(callback);
+      return fs.readFile(key, "utf8")(callback);
     }
 
     function set(key, value, callback) {
@@ -29,10 +29,10 @@ module.exports = function (platform) {
       if (isHash.test(key)) {
         return deflate(value, function (err, deflated) {
           if (err) return callback(err);
-          return write(hashToPath(key), deflated, callback);
+          return writeFile(hashToPath(key), deflated, callback);
         });
       }
-      return write(key, value, callback);
+      return writeFile(key, value, "utf8", callback);
     }
 
     function write(path, data, callback) {
